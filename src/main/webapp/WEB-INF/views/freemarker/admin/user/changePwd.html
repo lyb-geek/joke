@@ -1,0 +1,101 @@
+<#include "/template/meta.html"/>
+
+<title>修改密码</title>
+</head>
+<body>
+<article class="page-container">
+	<form  method="post" class="form form-horizontal" id="form-change-password">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>账户：</label>
+			<div class="formControls col-xs-8 col-sm-9">${(user.username)!''}</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>新密码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="password" class="input-text" autocomplete="off" placeholder="不修改请留空" name="newpassword" id="newpassword">
+				<input type="hidden"  value="${(user.id)!''}"  id="userId" name="id">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>确认密码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="password" class="input-text" autocomplete="off" placeholder="不修改请留空" name="newpassword2" id="new-password2">
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<button id="submitBtn"  class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+				<button id="cancel" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</article>
+
+<#include "/template/footer.html"/>
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript">
+$(function(){
+	$("#cancel").click(function(){
+		close();
+	});
+	function close(){
+		$("#form-change-password")[0].reset()
+		layer_close();
+	}
+	$("#form-change-password").validate({
+		rules:{
+			newpassword:{
+				required:true,
+				minlength:6,
+				maxlength:16
+			},
+			newpassword2:{
+				required:true,
+				minlength:6,
+				maxlength:16,
+				equalTo: "#newpassword"
+			}
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			  $("#submitBtn").attr("disabled","disabled");
+			    var tip = "操作失败"
+				var tipIcon = 5;//图标类型，1为普通提示图标，4为成功提示图标，5为失败图标，6为加载图标
+				var userId = $("#userId").val();
+				var newpassword = $("#newpassword").val();
+				ZENG.msgbox.show("数据保存中，请稍后...", 6);
+				$.ajax(
+					 {
+					    url:"${base}/user/changePwd",
+					    type:'POST', 
+					    data:{"userId":userId,"newpassword":newpassword},
+					    dataType:'json',    
+					    success:function(data,textStatus,jqXHR){
+					    	$("#submitBtn").removeAttr("disabled"); 
+					    	ZENG.msgbox._hide();
+					        if(data.status == 1){
+					        	tip = "操作成功"
+						        tipIcon = 4
+						        window.parent.location.reload();
+					        }
+					        ZENG.msgbox.show(tip, tipIcon, 2000);
+					       
+					        
+					    },
+					    error:function(xhr,textStatus){
+					    	$("#submitBtn").removeAttr("disabled"); 
+					        console.log(xhr)
+					        ZENG.msgbox._hide();
+					        ZENG.msgbox.show("服务器繁忙，请稍后再试", tipIcon, 2000);
+					    }
+					});
+		}
+	});
+});
+</script>
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

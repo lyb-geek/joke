@@ -1,0 +1,32 @@
+<#include "/template/meta.html"/>
+<title>邮件查看</title>
+</head>
+<body>
+<div class="pd-20">
+  <table class="table">
+    <tbody>
+      <tr>
+        <th class="text-r">发件人：</th>
+        <td>${emailLog.username}</td>
+      </tr>
+      <tr>
+        <th class="text-r">发件人邮箱：</th>
+        <td>${emailLog.email}</td>
+      </tr>
+      <tr>
+        <th class="text-r">邮箱主题：</th>
+        <td>${emailLog.subject}</td>
+      </tr>
+      <tr>
+        <th class="text-r">邮件内容：</th>
+        <td title="${emailLog.message}">${emailLog.message}</td>
+      </tr>
+      <tr>
+        <th class="text-r">创建时间：</th>
+        <td>${emailLog.createTime}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

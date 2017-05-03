@@ -1,0 +1,100 @@
+<#include "/template/meta.html"/>
+<title>新增权限映射</title>
+</head>
+<body>
+<article class="page-container">
+	<form class="form form-horizontal" id="form-permissionConfig-add">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>映射url：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="${(permissionConfig.url)!''}" placeholder="" id="url" name="url" title="映射url不能为空">
+				<input type="hidden"  value="${(permissionConfig.id)!''}"  id="permissionConfigId" name="id">
+				<input type="hidden"  value="${(permissionConfig.createTime)!''}"  id="createTime" name="createTime">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>权限映射表达式：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="${(permissionConfig.permissionPattern)!''}" placeholder="" id="permissionPattern" name="permissionPattern" title="权限映射表达式不能为空">
+			</div>
+		</div>
+		<#if persist??>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+				<button id="submitBtn"  class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+				<button  class="btn btn-default radius" type="button" id="cancel">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	  </#if>
+	</form>
+</article>
+
+<#include "/template/footer.html"/>
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript">
+$(function(){
+	
+	$("#cancel").click(function(){
+		close();
+	});
+	function close(){
+		$("#form-permissionConfig-add")[0].reset()
+		window.parent.location.reload();
+	}
+	$("#form-permissionConfig-add").validate({
+		rules:{
+			url:{
+				required:true
+			},
+			permissionPattern:{
+				required:true
+			}	
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			$("#submitBtn").attr("disabled","disabled");
+			var tip = "操作失败"
+			var tipIcon = 5;//图标类型，1为普通提示图标，4为成功提示图标，5为失败图标，6为加载图标
+			var data = $("#form-permissionConfig-add").serialize();
+			ZENG.msgbox.show("数据保存中，请稍后...", 6);
+			$.ajax(
+				 {
+				    url:"${base}/permissionConfig/save",
+				    type:'POST', 
+				    data:data,
+				    dataType:'json',    
+				    success:function(data,textStatus,jqXHR){
+				    	$("#submitBtn").removeAttr("disabled"); 
+				        if(data.status == 1){
+				        	tip = "操作成功"
+					        tipIcon = 4
+					        close();
+				        }
+				        ZENG.msgbox.show(tip, tipIcon, 2000);
+				       // var index = parent.layer.getFrameIndex(window.name);
+					   // parent.$('.btn-refresh').click();
+						//parent.layer.close(index);
+						
+				        
+				    },
+				    error:function(xhr,textStatus){
+				    	$("#submitBtn").removeAttr("disabled"); 
+				        console.log(xhr)
+				        ZENG.msgbox._hide();
+				        ZENG.msgbox.show("服务器繁忙，请稍后再试", tipIcon, 2000);
+				    }
+				});
+		}
+	});
+	
+	
+	
+	
+});
+</script>
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

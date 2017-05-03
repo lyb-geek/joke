@@ -1,0 +1,231 @@
+﻿<#include "/template/meta.html"/>
+<title>邮件列表</title>
+</head>
+<body>
+<@lybAuths name="email:query">
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 邮件日志 <span class="c-gray en">&gt;</span> 邮件列表 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+ <form class="form form-horizontal" id="form-email-search">
+	<div class="text-c"> <span class="select-box inline">
+		</span> 创建日期范围：
+		<input type="text"  name="startDate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'%y-%M-%d\'}'})" id="startDate" class="input-text Wdate" style="width:120px;">
+		-
+		<input type="text" name="endDate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',maxDate:'%y-%M-%d'})" id="endDate" class="input-text Wdate" style="width:120px;">
+		<input type="text" name="keyword" id="keyword" placeholder="输入邮件主题、发件人、发件人邮箱" style="width:250px" class="input-text">
+		<button name="" id="searchBtn" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜邮件</button>
+	</div>
+  </form>
+	<@lybAuths name="email:del"><div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> </div></@lybAuths>
+	<div class="mt-20">
+		<table class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th>邮件主题</th>
+					<th>发件人</th>
+					<th>发件人邮箱</th>
+					<th width="120">创建时间</th>
+					<@lybAuths name="email:del">
+					<th width="120">操作</th>
+					</@lybAuths>
+				</tr>
+			</thead>
+			<tbody id="tbodyResult">
+			  <#list page as emailLog>
+				<tr class="text-c">
+					<td><input type="checkbox" value="${emailLog.id}" name="items"></td>
+					<td class="text-l"><u style="cursor:pointer" class="text-primary" onClick="email_view('查看','${base}/email/view/${emailLog.id}')" title="查看">${emailLog.subject}</u></td>
+					<td>${emailLog.username}</td>
+					<td>${emailLog.email}</td>
+					<td>${emailLog.createTime}</td>
+					<@lybAuths name="email:del">
+					<td class="f-14 td-manage"> <a style="text-decoration:none" class="ml-5" onClick="email_del(this,'${emailLog.id}')" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+					</@lybAuths>
+				</tr>
+			  </#list>
+			</tbody>
+		</table>
+		 
+	    <div class="pages">
+	        <div id="Pagination"></div>
+	        <div class="searchPage">
+	          <span class="page-sum">共<strong class="allPage">${totalPage}</strong>页</span>
+	          <span class="page-go">跳转<input type="text">页</span>
+	          <a href="javascript:;" class="page-btn">GO</a>
+	        </div>
+	    </div>
+	
+	</div>
+</div>
+</@lybAuths>
+<textarea style="display: none" id="template">
+<tr class="text-c">
+	<td><input type="checkbox" value="" name="items" id="id_%"></td>
+	<td class="text-l"><u style="cursor:pointer" class="text-primary" id="subject_%"></u></td>
+	<td id="username_%"></td>
+	<td id="email_%"></td>
+	<td id="createTime_%"></td>
+	<@lybAuths name="email:del">
+	<td class="f-14 td-manage"><a style="text-decoration:none" class="ml-5" id="del_%" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+	</@lybAuths>
+</tr>
+</textarea>
+<#include "/template/footer.html"/>
+<script type="text/javascript" src="${base}/admin/lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#Pagination").pagination(${totalPage},{
+		callback: pageCallback
+	});
+	
+	$("#searchBtn").click(function(){
+		 ZENG.msgbox.show("数据查询中，请稍后...", 6);
+		 $.ajax({   
+	         type: "POST",  
+	         dataType: "json",  
+	         url: '${base}/email/search',      
+	         data: $("#form-email-search").serialize(),
+	         success: function(data) {
+	        	 ZENG.msgbox._hide();
+	        	  if(data.status == 1){
+	        		  $("#tbodyResult").empty();
+	        		  createTable(data.result.result);
+	        		  $(".allPage").text(data.result.countPage);
+	        		  $("#Pagination").pagination(data.result.countPage,{
+	        				callback: pageCallback
+	        			});
+			      }
+	        	 
+	         },
+	         error:function(xhr,textStatus){
+			        console.log(xhr)
+			        ZENG.msgbox._hide();
+			        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+			    }
+	     }); 
+	});
+	
+});
+
+function pageCallback(index, jq) { 
+	 var endDate = $("#endDate").val();
+	 var startDate = $("#startDate").val();
+	 var keyword = $("#keyword").val();
+	 $.ajax({   
+         type: "POST",  
+         dataType: "json",  
+         url: '${base}/email/gotoPage',      
+         data: {'pageNo':index,'pageSize':10,'startDate':startDate,'endDate':endDate,'keyword':keyword},         
+         success: function(data) {
+        	  if(data.status == 1){
+        		  createTable(data.result);
+		        }
+        	 
+         }  
+     }); 
+ 
+} 
+
+function createTable(data){
+	if(data.length > 0){
+		$("#tbodyResult").empty();
+		$.each(data,function(index, item){ 
+			var temp = $("#template").val().replace(new RegExp("%", "gm"), index);
+			$("#tbodyResult").append(temp);
+			$('#id_'+index).val(item.id);
+			$('#subject_'+index).text(item.subject);
+			$('#subject_'+index).click(function(){
+				var title = "查看";
+				var url = "${base}/email/view/"+item.id;
+				email_view(title,url)
+			});
+			$('#email_'+index).text(item.email);
+			$('#username_'+index).text(item.username);
+			$('#createTime_'+index).text(item.createTime);
+			$('#del_'+index).click(function(){
+				var title = "删除";
+				//var url = "${base}/article/delete/"+item.id;
+				email_del(this,item.id);
+			});
+		}); 
+	}
+	
+	
+}
+
+
+
+function email_view(title,url,id,w,h){
+	w = 800;
+	h = 500;
+	layer_show(title,url,w,h);
+}
+
+function email_del(obj,id){
+	layer.confirm('确认要删除吗？',function(){
+		ajaxDel(id);
+	});
+}
+
+
+function ajaxDel(id){
+	 ZENG.msgbox.show("数据删除中，请稍后...", 6);
+	 $.ajax({   
+        type: "POST",  
+        dataType: "json",  
+        url: '${base}/email/delete',      
+        data: {'id':id},
+        success: function(data) {
+       	  if(data.status == 1){
+       		  ZENG.msgbox.show("操作成功！", 4, 2000);
+       		  location.replace(location.href);
+		     }
+       	 
+        },
+        error:function(xhr,textStatus){
+		        console.log(xhr)
+		        ZENG.msgbox._hide();
+		        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+		    }
+    }); 
+}
+
+function ajaxBatchDel(ids){
+	ZENG.msgbox.show("数据删除中，请稍后...", 6);
+	 $.ajax({   
+        type: "POST",  
+        dataType: "json",  
+        url: '${base}/email/batchDel',      
+        data: {'ids':ids},
+        success: function(data) {
+       	  if(data.status == 1){
+       		ZENG.msgbox.show("操作成功！", 4, 2000);
+       		location.replace(location.href);
+		   }
+       	 
+        },
+        error:function(xhr,textStatus){
+		        console.log(xhr)
+		        ZENG.msgbox._hide();
+		        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+		    }
+    }); 
+}
+
+function datadel(){
+	var ids = [];
+	$('input[type=checkbox][name="items"]:checked').each(function() {
+		ids.push(this.value);
+	});
+	if (ids.length < 1) {
+		 ZENG.msgbox.show("至少选择一条记录", 5, 2000);
+		return;
+	}
+	layer.confirm('确认要删除吗？',function(){
+		ajaxBatchDel(ids);
+	});
+}
+
+</script> 
+</body>
+</html>

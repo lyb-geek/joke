@@ -1,0 +1,45 @@
+<#include "/template/meta.html"/>
+<title>个人信息</title>
+</head>
+<body>
+<#if user.roleList??>
+<#list user.roleList as userRole>
+     <#if userRole_index == 0>
+      <#assign roleName = "${userRole.roleName}" />
+     </#if>
+</#list>
+</#if>
+<div class="cl pd-20" style=" background-color:#5bacb6">
+  <img class="avatar size-XL l" src="${base}/admin/static/h-ui/images/user.jpg">
+  <dl style="margin-left:80px; color:#fff">
+    <dt><span class="f-18">${user.username}</span></span></dt>
+    <dd class="pt-10 f-12" style="margin-left:0">这家伙很懒，什么也没有留下</dd>
+  </dl>
+</div>
+<div class="pd-20">
+  <table class="table">
+    <tbody>
+    <#if roleName??>
+      <tr>
+        <th class="text-r">角色：</th>
+        <td>${roleName}</td>
+      </tr>
+     </#if>
+      <tr>
+        <th class="text-r">手机：</th>
+        <td>${user.mobile}</td>
+      </tr>
+      <tr>
+        <th class="text-r">邮箱：</th>
+        <td>${user.email}</td>
+      </tr>
+      <tr>
+        <th class="text-r">注册时间：</th>
+        <td>${user.createTime}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<#include "/template/footer.html"/>
+</body>
+</html>

@@ -1,0 +1,20 @@
+@charset "utf-8";
+*{margin:0;padding:0;list-style-type:none;}
+a,img{border:0;}
+
+
+.PcPoPmarket{display:none;z-index:1000;position:fixed;right:0px;bottom:0px;width:350px;height:238px;overflow:hidden;background:url(../images/bg_open.png) no-repeat;}
+*html .PcPoPmarket{position:absolute;}
+.popTop{position:relative;height:30px;overflow:hidden;}
+.popTop h2{color:#ff0000;font-size:14px;float:left;padding:8px 0 0 10px;line-height:20px;}
+.popBtn{width:18px;height:18px;overflow:hidden;cursor:pointer;float:right;margin-left:1px;margin-top:9px;display:inline;background:url(../images/buttons.png) no-repeat;}
+.popClose{margin-right:10px;width:15px;background-position:-39px 0}
+.popClose:hover{background-position:-39px -20px}
+.popShow{background-position:0px 0}
+.popShow:hover{background-position:0px -20px}
+.popHide{background-position:-19px 0}
+.popHide:hover{background-position:-19px -20px}
+
+
+.poplist{padding:10px;}
+.poplist li{font-size:14px;height:28px;line-height:28px;}

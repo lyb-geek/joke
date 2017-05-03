@@ -1,0 +1,200 @@
+<#include "/template/meta.html"/>
+<title>添加权限</title>
+</head>
+<body>
+<article class="page-container">
+	<form class="form form-horizontal" id="form-permission-add">
+	<div class="row cl">
+		<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>权限名称：</label>
+		<div class="formControls col-xs-8 col-sm-9">
+			<input type="text" class="input-text" value="${(permission.permissionName)!''}" placeholder="" id="permissionName" name="permissionName">
+		    <input type="hidden"  value="${(permission.id)!''}"  id="permissionId" name="id">
+		    <input type="hidden"  value="${(permission.createTime)!''}"  id="createTime" name="createTime">
+		    <input type="hidden"  value="${(permission.isParentId)!''}"  id="isParentVal" name="isParentIdVal">
+		    <input type="hidden"  value="${(update)!''}"  id="update" name="update">
+		    <input type="hidden"  value="${(view)!''}"  id="view" name="view">
+		</div>
+	</div>
+	<div class="row cl">
+		<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>权限code：</label>
+		<div class="formControls col-xs-8 col-sm-9">
+			<input type="text" class="input-text" value="${(permission.permissionCode)!''}" placeholder="" id="permissionCode" name="permissionCode">
+		</div>
+	</div>
+	<div class="row cl">
+		<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>是否父级权限：</label>
+		<div class="formControls col-xs-8 col-sm-9 skin-minimal">
+			<div class="radio-box">
+				<input name="isParentId" type="radio" value="1" id="isParentId-yes" <#if update??>disabled</#if> <#if permission??><#if permission.isParentId?? && permission.isParentId == 1>checked</#if></#if>>
+				<label for="sex-1">是</label>
+			</div>
+			<div class="radio-box">
+				<input type="radio" value="0" id="isParentId-no"  name="isParentId" <#if update??>disabled</#if> <#if permission??><#if permission.isParentId?? && permission.isParentId == 0>checked</#if></#if>>
+				<label for="sex-2">否</label>
+			</div>
+		</div>
+	</div>
+	<div class="row cl" style="display:none;" id="parentSelect">
+		<label class="form-label col-xs-4 col-sm-3">父级权限：</label>
+		<div class="formControls col-xs-8 col-sm-9"> 
+		<span class="select-box" style="width:150px;">
+			<select class="select" name="parentId" size="1" <#if update??>disabled</#if>>
+			 <#list parentList as parent>
+				<option value="${parent.id}" <#if permission??><#if permission.parentId?? && permission.parentId == parent.id>selected</#if></#if>>${parent.permissionName}</option>
+			</#list>
+			</select>
+			</span> 
+		</div>
+	</div>
+	<#if persist??>
+	<div class="row cl">
+		<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+			<input id="submitBtn" class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+			<button id="cancel" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+		</div>
+	</div>
+	</#if>
+	</form>
+</article>
+
+<#include "/template/footer.html"/>
+
+<!--请在下方写此页面业务相关的脚本--> 
+<script type="text/javascript">
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	// 只能输入英文
+	jQuery.validator.addMethod("valiEnglish", function(value, element) {
+	    var chrnum = /^([a-zA-Z:]+)$/;
+	    return this.optional(element) || (chrnum.test(value));
+	}, "只能输入英文或者包含:的英文");
+	
+	var isParentVal = $("#isParentVal").val();
+	if(isParentVal == 1){
+		$("#parentSelect").hide();
+	}
+	
+	var update = $("#update").val();
+	
+	var view = $("#view").val();
+	
+	if(view == "view" && isParentVal != 1){
+		$("#parentSelect").show();
+	}
+	
+	if(update == "update" && isParentVal != 1){
+		$("#parentSelect").show();
+	}
+	
+	$("#cancel").click(function(){
+		close();
+	});
+	function close(){
+		$("#form-permission-add")[0].reset()
+		window.parent.location.reload();
+	}
+	
+	$("#isParentId-yes").click(function(){
+		if(update == "update"){
+			return;
+		}
+		$("#parentSelect").hide();
+	});
+	
+	$("#isParentId-no").click(function(){
+		if(update == "update"){
+			return;
+		}
+		$("#parentSelect").show();
+		
+	});
+	
+	$("#form-permission-add").validate({
+		rules:{
+			permissionName:{
+				required:true,
+				minlength:4,
+				maxlength:16,
+				remote : {
+					url : '${base}/permission/checkPermissionName',
+					type : "post",
+					dataType : "json",
+					data : {
+						'permissionName' : function() {
+							return $('#permissionName').val();
+						},
+						'id' : function() {
+							return $('#permissionId').val();
+						}
+					}
+				}
+			},
+			permissionCode:{
+				required:true,
+				valiEnglish:true  
+			},
+			isParentId:{
+				required:true,
+			}
+		},
+		messages : {
+			"permissionName" : {
+				required : "权限名称不能为空",
+				remote : "权限名称已经存在"
+			},
+			"permissionCode" : {
+				required : "权限code不能为空",
+				valiEnglish : "权限code只能是英文"
+			}
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			 $("#submitBtn").attr("disabled","disabled");
+			var tip = "操作失败"
+				var tipIcon = 5;//图标类型，1为普通提示图标，4为成功提示图标，5为失败图标，6为加载图标
+				$("input[name=isParentId]").removeAttr("disabled");  
+				$("input[type='select']").removeAttr("disabled"); 
+				var data = $("#form-permission-add").serialize();
+				ZENG.msgbox.show("数据保存中，请稍后...", 6);
+				$.ajax(
+					 {
+					    url:"${base}/permission/save",
+					    type:'POST', 
+					    data:data,
+					    dataType:'json',    
+					    success:function(data,textStatus,jqXHR){
+					    	$("#submitBtn").removeAttr("disabled"); 
+					    	ZENG.msgbox._hide();
+					        if(data.status == 1){
+					        	tip = "操作成功"
+						        tipIcon = 4
+						        close();
+					        }
+					        ZENG.msgbox.show(tip, tipIcon, 2000);
+					       // var index = parent.layer.getFrameIndex(window.name);
+						   // parent.$('.btn-refresh').click();
+							//parent.layer.close(index);
+							
+					        
+					    },
+					    error:function(xhr,textStatus){
+					    	$("#submitBtn").removeAttr("disabled"); 
+					        console.log(xhr)
+					        ZENG.msgbox._hide();
+					        ZENG.msgbox.show("服务器繁忙，请稍后再试", tipIcon, 2000);
+					    }
+					});
+		}
+	});
+});
+</script> 
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

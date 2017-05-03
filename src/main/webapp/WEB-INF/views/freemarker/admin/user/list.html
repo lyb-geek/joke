@@ -1,0 +1,271 @@
+﻿<#include "/template/meta.html"/>
+<title>用户管理</title>
+</head>
+<body>
+<@lybAuths name="user:query">
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 用户中心 <span class="c-gray en">&gt;</span> 用户管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+ <form class="form form-horizontal" id="form-user-search">
+	<div class="text-c"> 创建日期范围：
+		<input type="text" name="startDate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'%y-%M-%d\'}'})" id="startDate" class="input-text Wdate" style="width:120px;">
+		-
+		<input type="text" name="endDate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',maxDate:'%y-%M-%d'})" id="endDate" class="input-text Wdate" style="width:120px;">
+		<input type="text" class="input-text" style="width:250px" placeholder="输入用户名称、电话、邮箱" id="keyword" name="keyword">
+		<button type="button" class="btn btn-success radius" id="searchBtn" name="searchBtn"><i class="Hui-iconfont">&#xe665;</i> 搜用户</button>
+	</div>
+  </form>
+	<@lybAuths name="user:add,user:del"><div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><@lybAuths name="user:del"><a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> </@lybAuths><@lybAuths name="user:add"><a href="javascript:;" onclick="user_add('添加用户','${base}/user/add','','510')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加用户</a></span></@lybAuths>  </div></@lybAuths>
+	<div class="mt-20">
+	<table class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th>用户名</th>
+					<th width="25">是否启用</th>
+					<th width="120">创建时间</th>
+					<th width="120">邮箱</th>
+					<th width="120">手机</th>
+					<@lybAuths name="user:update,user:del">
+					<th width="120">操作</th>
+					</@lybAuths>
+				</tr>
+			</thead>
+			<tbody id="tbodyResult">
+			  <#list page as user>
+				<tr class="text-c">
+					<td><input type="checkbox" value="${user.id}" name="items"></td>
+					<td class="text-l"><u style="cursor:pointer" class="text-primary" onClick="user_edit('查看','${base}/user/view/${user.id}')" title="查看">${user.username}</u></td>
+					<td>${(user.status == 1)?string('是','否')}</td>
+					<td>${user.createTime}</td>
+					<td>${user.email}</td>
+					<td>${user.mobile}</td>
+					<@lybAuths name="user:update,user:del">
+					<td class="f-14 td-manage"><@shiro.hasRole name="admin"><a style="text-decoration:none" onClick="user_role('角色绑定','${base}/user/userRoleAdd/${user.id}')" href="javascript:;" title="角色绑定"><i class="Hui-iconfont">&#xe60c;</i></a><a style="text-decoration:none" class="ml-5" onClick="change_password('修改密码','${base}/user/toChangePwd/${user.id}','600','270')" href="javascript:;" title="修改密码"><i class="Hui-iconfont">&#xe63f;</i></a> </@shiro.hasRole><@lybAuths name="user:update"><a style="text-decoration:none" class="ml-5" onClick="user_edit('编辑','${base}/user/update/${user.id}')" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> </@lybAuths><@lybAuths name="user:del"><a style="text-decoration:none" class="ml-5" onClick="user_del(this,'${user.id}')" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></@lybAuths></td>
+					</@lybAuths>
+				</tr>
+			  </#list>
+			</tbody>
+		</table>
+		 
+	    <div class="pages">
+	        <div id="Pagination"></div>
+	        <div class="searchPage">
+	          <span class="page-sum">共<strong class="allPage">${totalPage}</strong>页</span>
+	          <span class="page-go">跳转<input type="text">页</span>
+	          <a href="javascript:;" class="page-btn">GO</a>
+	        </div>
+	    </div>
+	</div>
+</div>
+</@lybAuths>
+<textarea style="display: none" id="template">
+<tr class="text-c">
+	<td><input type="checkbox" value="" name="items" id="id_%"></td>
+	<td class="text-l"><u style="cursor:pointer" class="text-primary" id="username_%"></u></td>
+	<td width="25" id="status_%"></td>
+	<td id="createTime_%"></td>
+	<td id="email_%"></td>
+	<td id="mobile_%"></td>
+	<@lybAuths name="user:update,user:del">
+	<td class="f-14 td-manage"><@shiro.hasRole name="admin"><a style="text-decoration:none" id="userRole_%" href="javascript:;" title="角色绑定"><i class="Hui-iconfont">&#xe60c;</i></a><a style="text-decoration:none" class="ml-5" id="changdePwd_%" href="javascript:;" title="修改密码"><i class="Hui-iconfont">&#xe63f;</i></a></@shiro.hasRole><@lybAuths name="user:update"><a style="text-decoration:none" class="ml-5" id="update_%" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a></@lybAuths> <@lybAuths name="user:del"><a style="text-decoration:none" class="ml-5" id="del_%" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></@lybAuths></td>
+	</@lybAuths>
+</tr>
+</textarea>
+<#include "/template/footer.html"/>
+<script type="text/javascript" src="${base}/admin/lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#Pagination").pagination(${totalPage},{
+		callback: pageCallback
+	});
+	
+	$("#searchBtn").click(function(){
+		 ZENG.msgbox.show("数据查询中，请稍后...", 6);
+		 $.ajax({   
+	         type: "POST",  
+	         dataType: "json",  
+	         url: '${base}/user/search',      
+	         data: $("#form-user-search").serialize(),
+	         success: function(data) {
+	        	 ZENG.msgbox._hide();
+	        	  if(data.status == 1){
+	        		  $("#tbodyResult").empty();
+	        		  createTable(data.result.result);
+	        		  $(".allPage").text(data.result.countPage);
+	        		  $("#Pagination").pagination(data.result.countPage,{
+	        				callback: pageCallback
+	        			});
+			      }
+	        	 
+	         },
+	         error:function(xhr,textStatus){
+			        console.log(xhr)
+			        ZENG.msgbox._hide();
+			        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+			    }
+	     }); 
+	});
+	
+});
+
+function pageCallback(index, jq) { 
+	 var endDate = $("#endDate").val();
+	 var startDate = $("#startDate").val();
+	 var keyword = $("#keyword").val();
+	 $.ajax({   
+         type: "POST",  
+         dataType: "json",  
+         url: '${base}/user/gotoPage',      
+         data: {'pageNo':index,'pageSize':10,'startDate':startDate,'endDate':endDate,'keyword':keyword},         
+         success: function(data) {
+        	  if(data.status == 1){
+        		  createTable(data.result);
+		        }
+        	 
+         }  
+     }); 
+ 
+} 
+
+function createTable(data){
+	if(data.length > 0){
+		$("#tbodyResult").empty();
+		$.each(data,function(index, item){ 
+			var temp = $("#template").val().replace(new RegExp("%", "gm"), index);
+			$("#tbodyResult").append(temp);
+			$('#id_'+index).val(item.id);
+			if(item.status == 1){
+				$('#status_'+index).text("是");
+			}else{
+				$('#status_'+index).text("否");
+			}
+			$('#username_'+index).text(item.username);
+			$('#username_'+index).click(function(){
+				var title = "查看";
+				var url = "${base}/user/view/"+item.id;
+				user_edit(title,url)
+			});
+			$('#createTime_'+index).text(item.createTime);
+			$('#email_'+index).text(item.email);
+			$('#mobile_'+index).text(item.mobile);
+			$('#update_'+index).click(function(){
+				var title = "编辑";
+				var url = "${base}/user/update/"+item.id;
+				user_edit(title,url);
+			});
+			
+			$('#userRole_'+index).click(function(){
+				var title = "角色绑定";
+				var url = "${base}/user/userRoleAdd/"+item.id;
+				user_role(title,url);
+			});
+			
+			$('#changdePwd_'+index).click(function(){
+				var title = "修改密码";
+				var url = "${base}/user/toChangePwd/"+item.id;
+				change_password(title,url);
+			});
+			
+			$('#del_'+index).click(function(){
+				var title = "删除";
+				//var url = "${base}/article/delete/"+item.id;
+				user_del(this,item.id);
+			});
+		}); 
+	}
+	
+	
+}
+
+function user_add(title,url,w,h){
+	h = 510
+	layer_show(title,url,w,h);
+}
+
+function user_role(title,url,w,h){
+	w = 300
+	h = 410
+	layer_show(title,url,w,h);
+}
+
+function user_edit(title,url,id,w,h){
+	h = 510
+	layer_show(title,url,w,h);
+}
+
+function user_del(obj,id){
+	layer.confirm('确认要删除吗？',function(){
+		ajaxDel(id);
+	});
+}
+
+
+function change_password(title,url,w,h){
+	w = 600
+	h = 270
+	layer_show(title,url,w,h);
+}
+
+
+function ajaxDel(id){
+	 ZENG.msgbox.show("数据删除中，请稍后...", 6);
+	 $.ajax({   
+        type: "POST",  
+        dataType: "json",  
+        url: '${base}/user/delete',      
+        data: {'id':id},
+        success: function(data) {
+       	 ZENG.msgbox._hide();
+       	  if(data.status == 1){
+       		  ZENG.msgbox.show("操作成功！", 4, 2000);
+       		  location.replace(location.href);
+		     }
+       	 
+        },
+        error:function(xhr,textStatus){
+		        console.log(xhr)
+		        ZENG.msgbox._hide();
+		        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+		    }
+    }); 
+}
+
+function ajaxBatchDel(ids){
+	ZENG.msgbox.show("数据删除中，请稍后...", 6);
+	 $.ajax({   
+        type: "POST",  
+        dataType: "json",  
+        url: '${base}/user/batchDel',      
+        data: {'ids':ids},
+        success: function(data) {
+       	 ZENG.msgbox._hide();
+       	  if(data.status == 1){
+       		ZENG.msgbox.show("操作成功！", 4, 2000);
+       		location.replace(location.href);
+		   }
+       	 
+        },
+        error:function(xhr,textStatus){
+		        console.log(xhr)
+		        ZENG.msgbox._hide();
+		        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+		    }
+    }); 
+}
+
+function datadel(){
+	var ids = [];
+	$('input[type=checkbox][name="items"]:checked').each(function() {
+		ids.push(this.value);
+	});
+	if (ids.length < 1) {
+		 ZENG.msgbox.show("至少选择一条记录", 5, 2000);
+		return;
+	}
+	layer.confirm('确认要删除吗？',function(){
+		ajaxBatchDel(ids);
+	});
+}
+</script> 
+</body>
+</html>

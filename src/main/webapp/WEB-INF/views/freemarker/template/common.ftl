@@ -1,0 +1,1 @@
+<#assign base=springMacroRequestContext.contextPath />

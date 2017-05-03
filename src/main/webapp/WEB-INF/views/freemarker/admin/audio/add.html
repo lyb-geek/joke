@@ -1,0 +1,198 @@
+<#include "/template/meta.html"/>
+<title>添加音频</title>
+</head>
+<body>
+<article class="page-container">
+	<form class="form form-horizontal" id="form-audio-add">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>音频标题：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="${(audio.title)!''}" placeholder="" id="audioTitle" name="title" title="音頻标题不能为空">
+				<input type="hidden"  value="${(audio.id)!''}"  id="audioId" name="id">
+				<input type="hidden"  value="${(audio.createTime)!''}"  id="createTime" name="createTime">
+				<input type="hidden"  value="${(audio.audioPath)!''}"  id="audioPath" name="audioPath">
+				<input type="hidden"  value="${(view)!''}"  id="view" name="view">
+				<input type="hidden"  value="${(update)!''}" id="update" name="update">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>是否播放：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+				<select name="isPlay" class="select">
+					<option value="1" <#if audio??><#if audio.isPlay?? && audio.isPlay == 1>selected</#if></#if>>是</option>
+					<option value="0" <#if audio??><#if audio.isPlay?? && audio.isPlay == 0>selected</#if></#if>>否</option>
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2">备注：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<textarea id="remark" name="remark" cols="" rows="" class="textarea"  placeholder="说点什么...最少输入10个字符" datatype="*10-100" dragonfly="true" title="备注不能为空！" onKeyUp="textarealength(this,200)">${(audio.remark)!''}</textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2">音频文件：</label>
+			<div class="formControls col-xs-8 col-sm-9"> 
+			<span id="filePathSpan" style="display:none">
+			  <audio id="audio" src="${base}/file/audio?fileName=${(audio.audioPath)!''}" controls="controls"  loop="loop" preload="auto">
+					Your browser does not support the audio tag.
+			 </audio>
+			 </span>
+			<span class="btn-upload form-group">
+			    <span id="fileSpan">
+				<input class="input-text upload-url" type="text" name="uploadfile" id="uploadfile" readonly nullmsg="请添加附件！" style="width:200px">
+				<a href="javascript:void();" class="btn btn-primary radius upload-btn"><i class="Hui-iconfont">&#xe642;</i> 浏览文件</a>
+				<input type="file" multiple name="file" class="input-file" id="upload"/>
+				</span>
+			</span> 
+			</div>
+		</div>
+		<#if persist??>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<button id="submitBtn" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+				<button id="cancel" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	  </#if>
+	</form>
+</article>
+
+<#include "/template/footer.html"/>
+
+<!--请在下方写此页面业务相关的脚本--> 
+<script type="text/javascript" src="${base}/admin/lib/upload/ajaxfileupload.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	var remark = $("#remark").val();
+	if(remark != ''){
+		var remarkLen = remark.length;
+		$(".textarea-length").text(remarkLen);
+	}
+	
+	var view = $("#view").val();
+	if(view == "view"){
+		$("#filePathSpan").show();
+		$("#fileSpan").hide();
+	}
+	
+	var update = $("#update").val();
+	if(update == "update"){
+		$("#filePathSpan").show();
+	}
+	
+	function fileUpload(){
+		ZENG.msgbox.show("音频上传中，请稍后...", 6);
+		 $.ajaxFileUpload
+         (
+             {
+                 url: '${base}/file/upload/0', //用于文件上传的服务器端请求地址
+                 secureuri: false, //一般设置为false
+                 fileElementId: 'upload', //文件上传空间的id属性  <input type="file" id="file" name="file" />
+                 dataType: 'json', //返回值类型 一般设置为json
+                 success: function (data, status)  //服务器成功响应处理函数
+                 {
+				        if(data.status == 1){
+				        	  $("#audioPath").val(data.result);
+				        	  $("#filePathSpan").show();
+				        	  var src = "${base}/file/audio?fileName="+data.result
+				        	  $("#audio").attr("src",src);
+				        	  ZENG.msgbox.show("音频文件上传成功", 4, 2000);
+				        }else{
+				        	 var msg = "音频文件上传失败,原因："+data.msg; 
+				        	 ZENG.msgbox.show(msg, 5, 2000);
+				        }
+				        
+				      
+                 },
+                 error: function (data, status, e)//服务器响应失败处理函数
+                 {
+				     ZENG.msgbox.show("服务器繁忙，请稍后再试", 5, 2000); 
+                 }
+             }
+         );
+		 //再次绑定
+		 $("#upload").on('change', function(){
+	    		fileUpload();
+	    	});
+	}
+	
+	$("#upload").on('change', function(){
+		fileUpload();
+	});
+	
+	
+
+	$("#cancel").click(function(){
+		close();
+	});
+	function close(){
+		$("#form-audio-add")[0].reset()
+		layer_close();
+	}
+	
+	$("#form-audio-add").validate({
+		rules:{
+			title:{
+				required:true
+			},
+			remark:{
+				required:true
+			}	
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			$("#submitBtn").attr("disabled","disabled");
+			var tip = "操作失败"
+			var tipIcon = 5;//图标类型，1为普通提示图标，4为成功提示图标，5为失败图标，6为加载图标
+			var audioPath = $("#audioPath").val();
+			if(audioPath == ""){
+				 ZENG.msgbox.show("音频文件不能为空", 1, 2000);
+				 $("#submitBtn").removeAttr("disabled"); 
+				 return;
+			}
+			var data = $("#form-audio-add").serialize();
+			ZENG.msgbox.show("数据保存中，请稍后...", 6);
+			$.ajax(
+				 {
+				    url:"${base}/audio/save",
+				    type:'POST', 
+				    data:data,
+				    dataType:'json',    
+				    success:function(data,textStatus,jqXHR){
+				    	$("#submitBtn").removeAttr("disabled"); 
+				    	ZENG.msgbox._hide();
+				        if(data.status == 1){
+				        	tip = "操作成功"
+					        tipIcon = 4
+					        window.parent.location.reload();
+				        }
+				        ZENG.msgbox.show(tip, tipIcon, 2000);
+				        
+				        
+				    },
+				    error:function(xhr,textStatus){
+				    	$("#submitBtn").removeAttr("disabled"); 
+				        console.log(xhr)
+				        ZENG.msgbox._hide();
+				        ZENG.msgbox.show("服务器繁忙，请稍后再试", tipIcon, 2000);
+				    }
+				});
+		}
+
+	});
+});
+</script> 
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

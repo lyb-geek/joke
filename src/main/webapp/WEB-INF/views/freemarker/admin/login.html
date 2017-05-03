@@ -1,0 +1,369 @@
+﻿<#include "/template/meta.html"/>
+<link href="${base}/admin/static/h-ui.admin/css/H-ui.login.css" rel="stylesheet" type="text/css" />
+<link href="${base}/admin/register/fort.min.css" rel="stylesheet" type="text/css" />
+<title>后台登录</title>
+<style>
+.form .message {
+	  margin: 15px 0 0;
+	  color: #b3b3b3;
+	  font-size: 14px;
+	}
+.form .message a {
+  color: #4CAF50;
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+<div class="header"></div>
+<div class="loginWraper">
+  <div id="loginform" class="loginBox">
+   <div id="submitForm">
+    <form class="form form-horizontal" action="${base}/login" method="post" id="login">
+      <div class="row cl">
+        <label class="form-label col-xs-3"><i class="Hui-iconfont">&#xe60d;</i></label>
+        <div class="formControls col-xs-8">
+          <input id="username" name="username" type="text" placeholder="账户" class="input-text size-L">
+        </div>
+      </div>
+      <div class="row cl">
+        <label class="form-label col-xs-3"><i class="Hui-iconfont">&#xe60e;</i></label>
+        <div class="formControls col-xs-8">
+          <input id="password" name="password" type="password" placeholder="密码" class="input-text size-L">
+        </div>
+      </div>
+      
+      <div class="row cl">
+        <div class="formControls col-xs-8 col-xs-offset-3">
+          <label for="online">
+            <input type="checkbox" name="rememberMe" id="online" value="1"/>
+                                   使我保持登录状态
+             <span class="message"><a  href="###" id="forget">忘记密码</a></span>
+            </label>
+        </div>
+      </div>
+      <div class="row cl">
+        <div class="formControls col-xs-8 col-xs-offset-3">
+          <input name="" type="button" id="popup-submit" class="btn btn-success radius size-L" value="&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;">
+          <input name="" type="reset" class="btn btn-default radius size-L" value="&nbsp;取&nbsp;&nbsp;&nbsp;&nbsp;消&nbsp;">
+		  <p class="message">还没有账户? <a href="###" id="register">立刻创建</a></p>
+        </div>
+         <div id="popup-captcha"></div>
+      </div>
+    </form>
+   </div>
+   <article   style="display:none" id="forgetForm">
+	<form  method="post" class="form form-horizontal" id="form-forget">
+	 <div class="form">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>注册邮箱：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="${(user.email)!''}" placeholder="@" name="email" id="form-forget-email" title="请输入注册邮箱">
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+			    <button  class="btn btn-default radius size-L back" type="button">&nbsp;&nbsp;返回&nbsp;&nbsp;</button>
+				<button id="forgetBtn"  class="btn btn-success radius size-L" type="submit"><i class="Hui-iconfont">&#xe632;</i> 发送</button>
+			</div>
+		</div>
+	   </div>
+	</form>
+</article>
+ <article   style="display:none" id="registerForm">
+	<form  method="post" class="form form-horizontal" id="form-register">
+	 <div class="form">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>账户：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+			  <input type="text" class="input-text" value="${(user.username)!''}" placeholder="" id="registername" name="username" title="账户名不能为空">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>密码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="password" class="input-text" autocomplete="off"  name="password" id="newpassword">
+				<input type="hidden"   name="status" value="1">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>确认密码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="password" class="input-text" autocomplete="off"  name="newpassword2" id="new-password2">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>手机：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="${(user.mobile)!''}" placeholder="" id="mobile" name="mobile" title="请输入正确的手机号码">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>邮箱：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="${(user.email)!''}" placeholder="@" name="email" id="email" title="请输入正确的邮箱">
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+			    <button  class="btn btn-default radius size-L back" type="button">&nbsp;&nbsp;返回&nbsp;&nbsp;</button>
+				<button id="submitBtn"  class="btn btn-success radius size-L" type="submit"><i class="Hui-iconfont">&#xe632;</i> 注册</button>
+			</div>
+		</div>
+	   </div>
+	</form>
+</article>
+  </div>
+</div>
+<div class="footer">Copyright joke.admin by linyb</div>
+<#include "/template/footer.html"/>
+<script type="text/javascript" src="${base}/admin/register/fort.min.js"></script>
+<script src="${base}/admin/register/gt.js"></script>
+<script>
+    var handlerPopup = function (captchaObj) {
+        // 成功的回调
+        captchaObj.onSuccess(function () {
+            var validate = captchaObj.getValidate();
+            $.ajax({
+                url: "${base}/pc-geetest/validate", // 进行二次验证
+                type: "post",
+                dataType: "json",
+                data: {
+                    username: $('#username').val(),
+                    password: $('#password').val(),
+                    geetest_challenge: validate.geetest_challenge,
+                    geetest_validate: validate.geetest_validate,
+                    geetest_seccode: validate.geetest_seccode
+                },
+                success: function (data) {
+                    if (data && (data.status === "success")) {
+                    	 $("#login").submit();
+                        //$(document.body).html('<h1>登录成功</h1>');
+                    } else {
+                        $(document.body).html('<h1>登录失败</h1>');
+                    }
+                }
+            });
+        });
+        $("#popup-submit").click(function () {
+            captchaObj.show();
+        });
+        // 将验证码加到id为captcha的元素里
+        captchaObj.appendTo("#popup-captcha");
+        // 更多接口参考：http://www.geetest.com/install/sections/idx-client-sdk.html
+    };
+    // 验证开始需要向网站主后台获取id，challenge，success（是否启用failback）
+    $.ajax({
+        url: "${base}/pc-geetest/register?t=" + (new Date()).getTime(), // 加随机数防止缓存
+        type: "get",
+        dataType: "json",
+        success: function (data) {
+            // 使用initGeetest接口
+            // 参数1：配置参数
+            // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它做appendTo之类的事件
+            initGeetest({
+                gt: data.gt,
+                challenge: data.challenge,
+                product: "popup", // 产品形式，包括：float，embed，popup。注意只对PC版验证码有效
+                offline: !data.success // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+                // 更多配置参数请参见：http://www.geetest.com/install/sections/idx-client-sdk.html#config
+            }, handlerPopup);
+        }
+    });
+</script>
+<script>
+$(document).ready(function(){
+	//Fort.solid();
+	var message = "${(message)!''}";
+	if(message != ""){
+		ZENG.msgbox.show(message, 1, 2000);
+	}
+	
+	$("#register").click(function(){
+		$("#forgetForm").hide();
+		$("#submitForm").hide();
+		$("#registerForm").show();
+	});
+	
+	$(".back").click(function(){
+		$("#submitForm").show();
+		$("#registerForm").hide();
+		$("#forgetForm").hide();
+	});
+	
+	$("#forget").click(function(){
+		$("#submitForm").hide();
+		$("#registerForm").hide();
+		$("#forgetForm").show();
+	});
+	
+	$("#form-forget").validate({
+		rules:{
+			email:{
+				required:true,
+				email:true,
+				remote : {
+					url : '${base}/checkEmail',
+					type : "post",
+					dataType : "json",
+					data : {
+						'email' : function() {
+							return $('#form-forget-email').val();
+						},
+						'sendEmail' : function() {
+							return '1';
+						}
+					}
+				}
+			}
+			
+		},
+		messages : {
+			"email" : {
+				required : "请输入注册邮箱",
+				remote : "请输入注册邮箱"
+			}
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			   $("#forgetBtn").attr("disabled","disabled");
+			    var tip = "操作失败"
+				var tipIcon = 5;//图标类型，1为普通提示图标，4为成功提示图标，5为失败图标，6为加载图标
+				var data = $("#form-forget").serialize();
+				ZENG.msgbox.show("邮件发送中，请稍后...", 6);
+				$.ajax(
+					 {
+					    url:"${base}/findPwdByEmail",
+					    type:'POST', 
+					    data:data,
+					    dataType:'json',    
+					    success:function(data,textStatus,jqXHR){
+					    	$("#forgetBtn").removeAttr("disabled"); 
+					    	ZENG.msgbox._hide();
+					        if(data.status == 1){
+					        	tip = "操作成功"
+						        tipIcon = 4
+						        $("#submitForm").show();
+					        	$("#form-forget")[0].reset();
+					    		$("#forgetForm").hide();
+					        }
+					        ZENG.msgbox.show(tip, tipIcon, 2000);
+					       
+					        
+					    },
+					    error:function(xhr,textStatus){
+					    	$("#forgetBtn").removeAttr("disabled"); 
+					        console.log(xhr)
+					        ZENG.msgbox._hide();
+					        ZENG.msgbox.show("服务器繁忙，请稍后再试", tipIcon, 2000);
+					    }
+					});
+			}
+	});
+	
+	$("#form-register").validate({
+		rules:{
+			username:{
+				required:true,
+				minlength:2,
+				maxlength:16,
+				remote : {
+					url : '${base}/checkRegistername',
+					type : "post",
+					dataType : "json",
+					data : {
+						'registername' : function() {
+							return $('#registername').val();
+						}
+					}
+				}
+			},
+			mobile:{
+				required:true,
+				isMobile:true
+			},
+			email:{
+				required:true,
+				email:true,
+				remote : {
+					url : '${base}/checkEmail',
+					type : "post",
+					dataType : "json",
+					data : {
+						'email' : function() {
+							return $('#email').val();
+						},
+						'sendEmail' : function() {
+							return '0';
+						}
+					}
+				}
+			},	
+			newpassword:{
+				required:true,
+				minlength:6,
+				maxlength:16
+			},
+			newpassword2:{
+				required:true,
+				minlength:6,
+				maxlength:16,
+				equalTo: "#newpassword"
+			}
+			
+		},
+		messages : {
+			"username" : {
+				minlength : "账户名的长度至少是2",
+				required : "账户名不能为空",
+				remote : "账户名已经存在"
+			},
+			"email" : {
+				required : "邮箱名不能为空",
+				remote : "该邮箱已经被注册"
+			}
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			   $("#submitBtn").attr("disabled","disabled");
+			    var tip = "操作失败"
+				var tipIcon = 5;//图标类型，1为普通提示图标，4为成功提示图标，5为失败图标，6为加载图标
+				var data = $("#form-register").serialize();
+				ZENG.msgbox.show("注册中，请稍后...", 6);
+				$.ajax(
+					 {
+					    url:"${base}/register",
+					    type:'POST', 
+					    data:data,
+					    dataType:'json',    
+					    success:function(data,textStatus,jqXHR){
+					    	$("#submitBtn").removeAttr("disabled"); 
+					    	ZENG.msgbox._hide();
+					        if(data.status == 1){
+					        	tip = "操作成功"
+						        tipIcon = 4
+						        $("#submitForm").show();
+					        	$("#form-register")[0].reset();
+					    		$("#registerForm").hide();
+					        }
+					        ZENG.msgbox.show(tip, tipIcon, 2000);
+					       
+					        
+					    },
+					    error:function(xhr,textStatus){
+					    	$("#submitBtn").removeAttr("disabled"); 
+					        console.log(xhr)
+					        ZENG.msgbox._hide();
+					        ZENG.msgbox.show("服务器繁忙，请稍后再试", tipIcon, 2000);
+					    }
+					});
+			}
+	});
+});
+</script>
+</body>
+</html>

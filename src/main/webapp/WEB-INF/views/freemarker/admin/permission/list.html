@@ -1,0 +1,240 @@
+﻿<#include "/template/meta.html"/>
+<title>权限列表</title>
+</head>
+<body>
+<@lybAuths name="permission:query">
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 权限管理 <span class="c-gray en">&gt;</span> 权限列表 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+ <form class="form form-horizontal" id="form-permission-search">
+	<div class="text-c"> <span class="select-box inline">
+		</span> 创建日期范围：
+		<input type="text"  name="startDate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'%y-%M-%d\'}'})" id="startDate" class="input-text Wdate" style="width:120px;">
+		-
+		<input type="text" name="endDate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',maxDate:'%y-%M-%d'})" id="endDate" class="input-text Wdate" style="width:120px;">
+		<input type="text" name="keyword" id="keyword" placeholder=" 权限名称" style="width:250px" class="input-text">
+		<button name="" id="searchBtn" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜权限名称</button>
+	</div>
+  </form>
+	<@lybAuths name="permission:add,permission:del"><div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><@lybAuths name="permission:del"><a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a></@lybAuths><@lybAuths name="permission:add"> <a class="btn btn-primary radius" data-title="添加权限"  onclick="permission_add('添加权限','${base}/permission/add','800','500')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加权限</a></@lybAuths></span></div></@lybAuths>
+	<div class="mt-20">
+		<table class="table table-border table-bordered table-bg table-hover table-sort">
+			<thead>
+				<tr class="text-c">
+					<th width="25"><input type="checkbox" name="" value=""></th>
+					<th>权限名称</th>
+					<th width="100">是否父级权限</th>
+					<th width="120">创建时间</th>
+					<@lybAuths name="permission:update,permission:del">
+					<th width="120">操作</th>
+					</@lybAuths>
+				</tr>
+			</thead>
+			<tbody id="tbodyResult">
+			  <#list page as permission>
+				<tr class="text-c">
+					<td><input type="checkbox" value="${permission.id}" name="items"></td>
+					<td class="text-l"><u style="cursor:pointer" class="text-primary" onClick="permission_edit('查看','${base}/permission/view/${permission.id}')" title="查看">${permission.permissionName}</u></td>
+					<td>${(permission.isParentId == 1)?string('是','否')}</td>
+					<td>${permission.createTime}</td>
+					<@lybAuths name="permission:update,permission:del">
+					<td class="f-14 td-manage"><@lybAuths name="permission:update"><a style="text-decoration:none" class="ml-5" onClick="permission_edit('编辑','${base}/permission/update/${permission.id}')" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> </@lybAuths><@lybAuths name="permission:del"><a style="text-decoration:none" class="ml-5" onClick="permission_del(this,'${permission.id}')" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></@lybAuths></td>
+					</@lybAuths>
+				</tr>
+			  </#list>
+			</tbody>
+		</table>
+		 
+	    <div class="pages">
+	        <div id="Pagination"></div>
+	        <div class="searchPage">
+	          <span class="page-sum">共<strong class="allPage">${totalPage}</strong>页</span>
+	          <span class="page-go">跳转<input type="text">页</span>
+	          <a href="javascript:;" class="page-btn">GO</a>
+	        </div>
+	    </div>
+	
+	</div>
+</div>
+</@lybAuths>
+<textarea style="display: none" id="template">
+<tr class="text-c">
+	<td><input type="checkbox" value="" name="items" id="id_%"></td>
+	<td class="text-l"><u style="cursor:pointer" class="text-primary" id="permissionName_%"></u></td>
+	<td id="isParentId_%"></td>
+	<td id="createTime_%"></td>
+	<@lybAuths name="permission:update,permission:del">
+	<td class="f-14 td-manage"><@lybAuths name="permission:update"><a style="text-decoration:none" class="ml-5" id="update_%" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a> </@lybAuths><@lybAuths name="permission:del"><a style="text-decoration:none" class="ml-5" id="del_%" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></@lybAuths></td>
+	</@lybAuths>
+</tr>
+</textarea>
+<#include "/template/footer.html"/>
+<script type="text/javascript" src="${base}/admin/lib/My97DatePicker/WdatePicker.js"></script> 
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#Pagination").pagination(${totalPage},{
+		callback: pageCallback
+	});
+	
+	$("#searchBtn").click(function(){
+		 ZENG.msgbox.show("数据查询中，请稍后...", 6);
+		 $.ajax({   
+	         type: "POST",  
+	         dataType: "json",  
+	         url: '${base}/permission/search',      
+	         data: $("#form-permission-search").serialize(),
+	         success: function(data) {
+	        	 ZENG.msgbox._hide();
+	        	  if(data.status == 1){
+	        		  $("#tbodyResult").empty();
+	        		  createTable(data.result.result);
+	        		  $(".allPage").text(data.result.countPage);
+	        		  $("#Pagination").pagination(data.result.countPage,{
+	        				callback: pageCallback
+	        			});
+			      }
+	        	 
+	         },
+	         error:function(xhr,textStatus){
+			        console.log(xhr)
+			        ZENG.msgbox._hide();
+			        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+			    }
+	     }); 
+	});
+	
+});
+
+function pageCallback(index, jq) { 
+	 var endDate = $("#endDate").val();
+	 var startDate = $("#startDate").val();
+	 var keyword = $("#keyword").val();
+	 $.ajax({   
+         type: "POST",  
+         dataType: "json",  
+         url: '${base}/permission/gotoPage',      
+         data: {'pageNo':index,'pageSize':10,'startDate':startDate,'endDate':endDate,'keyword':keyword},         
+         success: function(data) {
+        	  if(data.status == 1){
+        		  createTable(data.result);
+		        }
+        	 
+         }  
+     }); 
+ 
+} 
+
+function createTable(data){
+	if(data.length > 0){
+		$("#tbodyResult").empty();
+		$.each(data,function(index, item){ 
+			var temp = $("#template").val().replace(new RegExp("%", "gm"), index);
+			$("#tbodyResult").append(temp);
+			$('#id_'+index).val(item.id);
+			$('#permissionName_'+index).text(item.permissionName);
+			$('#permissionName_'+index).click(function(){
+				var title = "查看";
+				var url = "${base}/permissionName/view/"+item.id;
+				permissionName_edit(title,url)
+			});
+			if(item.isParentId == 1){
+				$('#isParentId_'+index).text("是");
+			}else{
+				$('#isParentId_'+index).text("否");
+			}
+			$('#createTime_'+index).text(item.createTime);
+			$('#update_'+index).click(function(){
+				var title = "编辑";
+				var url = "${base}/permission/update/"+item.id;
+				permission_edit(title,url);
+			});
+			$('#del_'+index).click(function(){
+				var title = "删除";
+				//var url = "${base}/article/delete/"+item.id;
+				permission_del(this,item.id);
+			});
+		}); 
+	}
+	
+	
+}
+
+function permission_add(title,url,w,h){
+	w = 800;
+	h = 500;
+	layer_show(title,url,w,h);
+}
+
+function permission_edit(title,url,id,w,h){
+	w = 800;
+	h = 500;
+	layer_show(title,url,w,h)
+}
+
+function permission_del(obj,id){
+	layer.confirm('确认要删除吗？',function(){
+		ajaxDel(id);
+	});
+}
+
+
+function ajaxDel(id){
+	 ZENG.msgbox.show("数据删除中，请稍后...", 6);
+	 $.ajax({   
+        type: "POST",  
+        dataType: "json",  
+        url: '${base}/permission/delete',      
+        data: {'id':id},
+        success: function(data) {
+       	  if(data.status == 1){
+       		  ZENG.msgbox.show("操作成功！", 4, 2000);
+       		  location.replace(location.href);
+		     }
+       	 
+        },
+        error:function(xhr,textStatus){
+		        console.log(xhr)
+		        ZENG.msgbox._hide();
+		        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+		    }
+    }); 
+}
+
+function ajaxBatchDel(ids){
+	ZENG.msgbox.show("数据删除中，请稍后...", 6);
+	 $.ajax({   
+        type: "POST",  
+        dataType: "json",  
+        url: '${base}/permission/batchDel',      
+        data: {'ids':ids},
+        success: function(data) {
+       	  if(data.status == 1){
+       		ZENG.msgbox.show("操作成功！", 4, 2000);
+       		location.replace(location.href);
+		   }
+       	 
+        },
+        error:function(xhr,textStatus){
+		        console.log(xhr)
+		        ZENG.msgbox._hide();
+		        ZENG.msgbox.show("服务器繁忙，请稍后再试", 1, 2000);
+		    }
+    }); 
+}
+
+function datadel(){
+	var ids = [];
+	$('input[type=checkbox][name="items"]:checked').each(function() {
+		ids.push(this.value);
+	});
+	if (ids.length < 1) {
+		 ZENG.msgbox.show("至少选择一条记录", 5, 2000);
+		return;
+	}
+	layer.confirm('确认要删除吗？',function(){
+		ajaxBatchDel(ids);
+	});
+}
+
+</script> 
+</body>
+</html>
